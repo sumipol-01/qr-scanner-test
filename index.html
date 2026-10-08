@@ -81,7 +81,15 @@ function handleCredentialResponse(response) {
 
   const payload = parseJwt(response.credential);
 
-  console.log(payload);
+  const allowedDomain = "sumipol.com";
+
+  if (payload.hd !== allowedDomain) {
+    document.getElementById("loginBox").innerHTML =
+      "<p style='color:red;'>Access denied<br>Company account required.</p>";
+
+    document.getElementById("app").style.display = "none";
+    return;
+  }
 
   document.getElementById("loginBox").style.display = "none";
   document.getElementById("app").style.display = "block";
