@@ -76,73 +76,95 @@
 
 
 <script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXrFAuS9GiB43DZ6cWxBHkPVKhgB0nnRbo2613bUn04ouZLJ9q2aQ2-dRZdHGYbDZhcw/exec";
 
-function handleCredentialResponse(response) {
+  let scanner;
+  let idToken = null;
 
-  const payload = parseJwt(response.credential);
+  function handleCredentialResponse(response) {
+    idToken = response.credential;
 
-  const allowedDomain = "sumipol.com";
+    const payload = parseJwt(response.credential);
+    const allowedDomain = "sumipol.com";
 
-  if (payload.hd !== allowedDomain) {
-    document.getElementById("loginBox").innerHTML =
-      "<p style='color:red;'>Access denied<br>Company account required.</p>";
+    if (payload.hd !== allowedDomain) {
+      document.getElementById("loginBox").innerHTML =
+        "<p style='color:red;'>Access denied<br>Company account required.</p>";
 
-    document.getElementById("app").style.display = "none";
-    return;
+      document.getElementById("app").style.display = "none";
+      return;
+    }
+
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    document.getElementById("userEmail").innerText =
+      "Signed in: " + payload.email;
   }
 
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  function parseJwt(token) {
+    const base64Url = token.split('.')[1];
 
-  document.getElementById("userEmail").innerText =
-    "Signed in: " + payload.email;
-}
+    const base64 = base64Url
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
 
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(c =>
+          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        )
+        .join('')
+    );
 
-function parseJwt(token) {
+    return JSON.parse(jsonPayload);
+  }
 
-  const base64Url = token.split('.')[1];
+  function startScanner() {
+    scanner = new Html5Qrcode("reader");
 
-  const base64 = base64Url
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+    scanner.start(
+      { facingMode: "environment" },
+      {
+        fps: 10,
+        qrbox: 250
+      },
 
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split('')
-      .map(c =>
-        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-      )
-      .join('')
-  );
+      async decodedText => {
+        document.getElementById("result").innerText =
+          "Scanned: " + decodedText + "\nSaving...";
 
-  return JSON.parse(jsonPayload);
-}
+        await scanner.stop();
 
+        saveToSheet(decodedText);
+      },
 
-let scanner;
+      error => {}
+    );
+  }
 
-function startScanner() {
+  async function saveToSheet(qrText) {
+    try {
+      const formData = new FormData();
 
-  scanner = new Html5Qrcode("reader");
+      formData.append("token", idToken);
+      formData.append("qrText", qrText);
 
-  scanner.start(
-    { facingMode: "environment" },
-    {
-      fps: 10,
-      qrbox: 250
-    },
-    decodedText => {
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: formData,
+        mode: "no-cors"
+      });
 
       document.getElementById("result").innerText =
-        decodedText;
+        "Saved!\n" + qrText;
 
-      scanner.stop();
-    },
-    error => {}
-  );
-}
-
+    } catch (err) {
+      document.getElementById("result").innerText =
+        "Save Error: " + err;
+    }
+  }
 </script>
 
 </body>
