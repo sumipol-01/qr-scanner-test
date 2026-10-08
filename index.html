@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>QR Scanner Test</title>
+  <title>METALEX QR Scanner</title>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
@@ -15,6 +16,10 @@
       margin: auto;
       padding: 20px;
       text-align: center;
+    }
+
+    #app {
+      display: none;
     }
 
     #reader {
@@ -33,76 +38,104 @@
     button {
       padding: 12px 20px;
       font-size: 16px;
-      margin: 5px;
+      margin-top: 10px;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>QR Scanner Test</h2>
+  <h2>METALEX 2026 QR Scanner</h2>
 
-  <button onclick="startScanner()">Start Scanner</button>
+  <div id="loginBox">
 
-  <div id="reader"></div>
+    <div id="g_id_onload"
+      data-client_id="54179589615-lp0lm47bb97lfcs9o64l56m8m40u0dvk.apps.googleusercontent.com"
+      data-callback="handleCredentialResponse"
+      data-auto_prompt="false">
+    </div>
 
-  <div id="result">
-    Waiting for QR...
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large">
+    </div>
+
   </div>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/a/macros/sumipol.com/s/AKfycbxkdIdn5XzYiUzdn8QlpPIgzuD5DgOXpt3w7s7eRI5iSA1ncPm4x34MaQTjE2XMHDYf/exec";
+  <div id="app">
+    <p id="userEmail"></p>
 
-    let scanner;
+    <button onclick="startScanner()">Start Scanner</button>
 
-    function startScanner() {
-      scanner = new Html5Qrcode("reader");
+    <div id="reader"></div>
 
-      scanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: 250
-        },
-        async decodedText => {
+    <div id="result">
+      Waiting for QR...
+    </div>
+  </div>
 
-          document.getElementById("result").innerText =
-            "Scanned: " + decodedText + "\nSaving...";
 
-          await scanner.stop();
+<script>
 
-          saveToSheet(decodedText);
-        },
-        error => {}
+function handleCredentialResponse(response) {
+
+  const payload = parseJwt(response.credential);
+
+  console.log(payload);
+
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  document.getElementById("userEmail").innerText =
+    "Signed in: " + payload.email;
+}
+
+
+function parseJwt(token) {
+
+  const base64Url = token.split('.')[1];
+
+  const base64 = base64Url
+    .replace(/-/g, '+')
+    .replace(/_/g, '/');
+
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
       )
-      .catch(err => {
-        document.getElementById("result").innerText =
-          "Error: " + err;
-      });
-    }
+      .join('')
+  );
+
+  return JSON.parse(jsonPayload);
+}
 
 
-    async function saveToSheet(qrText) {
+let scanner;
 
-      try {
+function startScanner() {
 
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          body: formData,
-          mode: "no-cors"
-        });
+  scanner = new Html5Qrcode("reader");
 
-        document.getElementById("result").innerText =
-          "Saved!\n" + qrText;
+  scanner.start(
+    { facingMode: "environment" },
+    {
+      fps: 10,
+      qrbox: 250
+    },
+    decodedText => {
 
-      } catch (err) {
+      document.getElementById("result").innerText =
+        decodedText;
 
-        document.getElementById("result").innerText =
-          "Save Error: " + err;
+      scanner.stop();
+    },
+    error => {}
+  );
+}
 
-      }
-    }
-  </script>
+</script>
 
 </body>
 </html>
