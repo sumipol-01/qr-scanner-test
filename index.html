@@ -4,21 +4,269 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>METALEX QR Scanner</title>
+  <title>METALEX 2026 Enquiry Scanner</title>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://unpkg.com/html5-qrcode"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      text-align: center;
+    * {
+      box-sizing: border-box;
     }
 
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #12213d;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* Login */
+
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 18px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    }
+
+    .login-card h1 {
+      margin: 0;
+      font-size: 26px;
+    }
+
+    .login-card p {
+      margin: 8px 0 24px;
+      color: #6c7890;
+    }
+
+    .google-login {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* App */
+
     #app {
+      display: none;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #fff;
+      padding: 18px 16px 90px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .app-header h1 {
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .app-header p {
+      margin: 3px 0 0;
+      font-size: 14px;
+      color: #5f6f89;
+    }
+
+    .settings-btn {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .event-banner {
+      height: 170px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          135deg,
+          #172239 0%,
+          #101827 58%,
+          #d62828 100%
+        );
+    }
+
+    .banner-text {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      color: white;
+    }
+
+    .banner-text h2 {
+      margin: 0 0 6px;
+      font-size: 25px;
+    }
+
+    .banner-text p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e1e7f0;
+      border-radius: 14px;
+      box-shadow: 0 3px 10px rgba(20, 37, 63, 0.05);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .user-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #e9f2ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+    }
+
+    #userEmail {
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .small-text {
+      margin-top: 2px;
+      font-size: 12px;
+      color: #77849a;
+    }
+
+    .main-action {
+      width: 100%;
+      min-height: 66px;
+      display: grid;
+      grid-template-columns: 44px 1fr 28px;
+      align-items: center;
+      border: none;
+      border-radius: 14px;
+      padding: 0 14px;
+      margin-bottom: 14px;
+      cursor: pointer;
+    }
+
+    .main-action.primary {
+      background: #0878f9;
+      color: white;
+    }
+
+    .main-action.secondary {
+      background: #edf6ff;
+      color: #12305f;
+    }
+
+    .action-icon {
+      font-size: 26px;
+    }
+
+    .action-text {
+      text-align: left;
+      font-weight: 600;
+      font-size: 17px;
+    }
+
+    .arrow {
+      font-size: 28px;
+    }
+
+    .today-card {
+      display: grid;
+      grid-template-columns: 52px 1fr 28px;
+      align-items: center;
+      padding: 15px;
+    }
+
+    .today-icon {
+      font-size: 28px;
+    }
+
+    .today-count {
+      font-size: 25px;
+      font-weight: 700;
+    }
+
+    .today-count span {
+      font-size: 13px;
+      font-weight: 400;
+      color: #76849b;
+    }
+
+    /* Bottom nav */
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      height: 72px;
+      background: #fff;
+      border-top: 1px solid #dde5ef;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      z-index: 1000;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      color: #66758d;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .nav-item div {
+      font-size: 22px;
+    }
+
+    .nav-item.active {
+      color: #0878f9;
+    }
+
+    /* Temporary scanner page */
+
+    #scannerPage {
       display: none;
     }
 
@@ -30,141 +278,346 @@
     #result {
       margin-top: 20px;
       padding: 15px;
-      background: #eee;
-      border-radius: 8px;
+      background: #eef2f7;
+      border-radius: 10px;
       word-break: break-all;
     }
 
-    button {
-      padding: 12px 20px;
+    .back-btn {
+      border: none;
+      background: transparent;
       font-size: 16px;
-      margin-top: 10px;
+      padding: 6px 0;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .scan-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #0878f9;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>METALEX 2026 QR Scanner</h2>
+  <!-- Login Screen -->
+  <div id="loginScreen">
 
-  <div id="loginBox">
+    <div class="login-card">
 
-    <div id="g_id_onload"
-      data-client_id="54179589615-lp0lm47bb97lfcs9o64l56m8m40u0dvk.apps.googleusercontent.com"
-      data-callback="handleCredentialResponse"
-      data-auto_prompt="false">
-    </div>
+      <h1>METALEX 2026</h1>
+      <p>Enquiry Scanner</p>
 
-    <div class="g_id_signin"
-      data-type="standard"
-      data-size="large">
+      <div id="loginBox" class="google-login">
+
+        <div id="g_id_onload"
+          data-client_id="54179589615-lp0lm47bb97lfcs9o64l56m8m40u0dvk.apps.googleusercontent.com"
+          data-callback="handleCredentialResponse"
+          data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+          data-type="standard"
+          data-size="large">
+        </div>
+
+      </div>
+
     </div>
 
   </div>
 
+
+  <!-- Main App -->
   <div id="app">
-    <p id="userEmail"></p>
 
-    <button onclick="startScanner()">Start Scanner</button>
+    <!-- HOME -->
+    <div id="homePage">
 
-    <div id="reader"></div>
+      <header class="app-header">
 
-    <div id="result">
-      Waiting for QR...
+        <div>
+          <h1>METALEX 2026</h1>
+          <p>Enquiry Scanner</p>
+        </div>
+
+        <button class="settings-btn">
+          ⚙
+        </button>
+
+      </header>
+
+
+      <section class="event-banner">
+
+        <div class="banner-text">
+          <h2>METALEX 2026</h2>
+          <p>
+            SHAPING A SMARTER<br>
+            MANUFACTURING TOMORROW
+          </p>
+        </div>
+
+      </section>
+
+
+      <section class="card user-card">
+
+        <div class="user-icon">
+          👤
+        </div>
+
+        <div>
+          <div id="userEmail"></div>
+
+          <div class="small-text">
+            Signed in
+          </div>
+        </div>
+
+      </section>
+
+
+      <button class="main-action primary"
+        onclick="openScannerPage()">
+
+        <span class="action-icon">＋</span>
+
+        <span class="action-text">
+          New Enquiry
+        </span>
+
+        <span class="arrow">›</span>
+
+      </button>
+
+
+      <button class="main-action secondary">
+
+        <span class="action-icon">▤</span>
+
+        <span class="action-text">
+          My Enquiries
+        </span>
+
+        <span class="arrow">›</span>
+
+      </button>
+
+
+      <section class="card today-card">
+
+        <div class="today-icon">
+          📊
+        </div>
+
+        <div>
+          <div class="small-text">
+            Today
+          </div>
+
+          <div class="today-count">
+            0
+            <span>enquiries</span>
+          </div>
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </section>
+
     </div>
+
+
+    <!-- TEMP Scanner Page -->
+    <div id="scannerPage">
+
+      <button class="back-btn"
+        onclick="goHome()">
+        ← Back
+      </button>
+
+      <h2>New Enquiry</h2>
+
+      <button class="scan-btn"
+        onclick="startScanner()">
+        Scan QR / Barcode
+      </button>
+
+      <div id="reader"></div>
+
+      <div id="result">
+        Waiting for QR...
+      </div>
+
+    </div>
+
   </div>
+
+
+  <nav id="bottomNav"
+    class="bottom-nav"
+    style="display:none;">
+
+    <button class="nav-item active"
+      onclick="goHome()">
+
+      <div>⊞</div>
+      <span>Scan</span>
+
+    </button>
+
+    <button class="nav-item">
+
+      <div>▤</div>
+      <span>My Enquiries</span>
+
+    </button>
+
+  </nav>
 
 
 <script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxXrFAuS9GiB43DZ6cWxBHkPVKhgB0nnRbo2613bUn04ouZLJ9q2aQ2-dRZdHGYbDZhcw/exec";
+
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbxXrFAuS9GiB43DZ6cWxBHkPVKhgB0nnRbo2613bUn04ouZLJ9q2aQ2-dRZdHGYbDZhcw/exec";
 
   let scanner;
   let idToken = null;
+  let currentUserEmail = null;
+
 
   function handleCredentialResponse(response) {
+
     idToken = response.credential;
 
     const payload = parseJwt(response.credential);
+
     const allowedDomain = "sumipol.com";
 
     if (payload.hd !== allowedDomain) {
+
       document.getElementById("loginBox").innerHTML =
         "<p style='color:red;'>Access denied<br>Company account required.</p>";
 
       document.getElementById("app").style.display = "none";
+
       return;
     }
 
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("app").style.display = "block";
+
+    currentUserEmail = payload.email;
+
+
+    document.getElementById("loginScreen").style.display =
+      "none";
+
+    document.getElementById("app").style.display =
+      "block";
+
+    document.getElementById("bottomNav").style.display =
+      "grid";
+
 
     document.getElementById("userEmail").innerText =
-      "Signed in: " + payload.email;
+      payload.email;
   }
 
+
   function parseJwt(token) {
-    const base64Url = token.split('.')[1];
 
-    const base64 = base64Url
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
+    const base64Url =
+      token.split('.')[1];
 
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        )
-        .join('')
-    );
+    const base64 =
+      base64Url
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+
+    const jsonPayload =
+      decodeURIComponent(
+
+        atob(base64)
+          .split('')
+          .map(c =>
+            '%' +
+            ('00' +
+              c.charCodeAt(0)
+                .toString(16)
+            ).slice(-2)
+          )
+          .join('')
+
+      );
 
     return JSON.parse(jsonPayload);
   }
 
+
+  function openScannerPage() {
+
+    document.getElementById("homePage").style.display =
+      "none";
+
+    document.getElementById("scannerPage").style.display =
+      "block";
+
+    document.getElementById("bottomNav").style.display =
+      "none";
+  }
+
+
+  function goHome() {
+
+    document.getElementById("scannerPage").style.display =
+      "none";
+
+    document.getElementById("homePage").style.display =
+      "block";
+
+    document.getElementById("bottomNav").style.display =
+      "grid";
+  }
+
+
   function startScanner() {
+
     scanner = new Html5Qrcode("reader");
 
     scanner.start(
-      { facingMode: "environment" },
+
+      {
+        facingMode: "environment"
+      },
+
       {
         fps: 10,
         qrbox: 250
       },
 
       async decodedText => {
+
         document.getElementById("result").innerText =
-          "Scanned: " + decodedText + "\nSaving...";
+          "Scanned: " + decodedText;
 
         await scanner.stop();
 
-        saveToSheet(decodedText);
       },
 
       error => {}
+
     );
   }
 
-  async function saveToSheet(qrText) {
-    try {
-      const formData = new FormData();
-
-      formData.append("token", idToken);
-      formData.append("qrText", qrText);
-
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        body: formData,
-        mode: "no-cors"
-      });
-
-      document.getElementById("result").innerText =
-        "Saved!\n" + qrText;
-
-    } catch (err) {
-      document.getElementById("result").innerText =
-        "Save Error: " + err;
-    }
-  }
 </script>
 
 </body>
